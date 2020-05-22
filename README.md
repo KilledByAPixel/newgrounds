@@ -20,3 +20,10 @@ Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
 
 ```
+
+# Extra Code for Medal Popups
+
+```
+Newgrouinds.Update(timeDelta);
+Newgrounds.Render(canvasContext, drawSize);
+```
