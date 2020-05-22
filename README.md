@@ -13,15 +13,12 @@
 - [Uses AES-JS for encryption.](https://github.com/ricmoo/aes-js)
 
 # Example Usage
-
 ```
 Newgrounds.Init(appID, encryptionCipher, debug);
 Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
-
 ```
-# Update/Render for Medal Popups
-
+# Optional Update/Render for Medal Popups
 ```
 Newgrouinds.Update(timeDelta);
 Newgrounds.Render(canvasContext, drawSize);
