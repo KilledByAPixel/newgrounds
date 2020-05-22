@@ -10,7 +10,7 @@
 - Escaped emojis can be used in medal names and descriptions.
 - Encryption is set up for AES-128 Base64 encryption.
 - Encryption is currently not working! I could use some help with this.
-- [Uses AES-JS for encryption.](https://github.com/ricmoo/aes-js)
+- [Uses CryptoJS for encryption.](https://github.com/brix/crypto-js)
 
 # Example Usage
 ```
