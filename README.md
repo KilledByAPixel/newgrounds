@@ -1,4 +1,4 @@
-# A JavaScript API for Newgrounds
+# A JavaScript Wrapper for Newgrounds API 3.0
 
 # [LIVE DEMO](https://www.newgrounds.com/portal/view/755888?updated=1590185509)
 # [EXAMPLE GAME - BOUNCE BACK](https://www.newgrounds.com/portal/view/755171)
@@ -9,7 +9,6 @@
 - Medal popup display rendering with icons
 - Escaped emojis can be used in medal names and descriptions.
 - Encryption is set up for AES-128 Base64 encryption.
-- Encryption is currently not working! I could use some help with this.
 - [Uses CryptoJS for encryption.](https://github.com/brix/crypto-js)
 
 # Example Usage
