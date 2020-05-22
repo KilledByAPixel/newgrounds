@@ -21,7 +21,7 @@ Newgrounds.PostScore(0, 12345);
 
 ```
 
-# Extra Code for Medal Popups
+# Medal Popups Interface
 
 ```
 Newgrouinds.Update(timeDelta);
