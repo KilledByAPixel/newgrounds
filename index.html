@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>Newgrounds Test</title>
+<style>
+*{
+    font-family: courier;
+    color: #FFF;
+}
+button, textarea
+{
+    color: #000;
+    font-size: 18px;
+    resize: none;
+}
+canvas
+{
+    background: #999;
+}
+</style>
+</head>
+<body bgcolor=#111>
+<b>Newgrounds API Test</b>
+<br><br>
+<b>Medals</b>
+<div id=div_medals></div>
+<br>
+<button onclick=UnlockMedal(0)>Medal 0</button>
+<button onclick=UnlockMedal(1)>Medal 1</button>
+<button onclick=UnlockMedal(2)>Medal 2</button>
+<br><br>
+<b>Scoreboards</b>
+<div id=div_scoreboards></div>
+<br>
+<input id=input_score value=0 type=number>
+<button onclick='PostScore(0, input_score.value)'>Post Score</button>
+<br><br>
+<b>Response Debug</b>
+<br>
+<textarea id=textarea_response readonly cols=60 rows=5></textarea>
+<br><br>
+<b>Canvas</b>
+<br>
+<canvas id=c width=720></canvas>
+<script src=aes.js></script>
+<script src=newgrounds.js></script>
+<script>
+
+const appID = '50367:TZmUUObe';
+const encryptionCipher = '';//'gSwuuUahe/VmTn0M/MzSeg=='; // encryption not working!
+const debug = 1;
+
+Newgrounds.Init(appID, encryptionCipher, debug);
+textarea_response.value = Newgrounds.responseText;
+
+function UnlockMedal(id)
+{
+    Newgrounds.UnlockMedal(id);
+    textarea_response.value = Newgrounds.responseText;
+}
+
+function PostScore(id, score)
+{
+    Newgrounds.PostScore(id, parseInt(input_score.value));
+    textarea_response.value = Newgrounds.responseText;
+}
+
+function Update()
+{
+    c.width|=0;
+    Newgrounds.Update(1/60);
+    Newgrounds.Render(c.getContext('2d'));
+    
+    let medalText = '';
+    for (const medal of Newgrounds.medals)
+        medalText += medal.id + ': ' + Newgrounds.GetMedalDisplayText(medal) + '<br>';
+    div_medals.innerHTML = medalText;
+    
+    let scoreboardText = '';
+    for (const scoreboard of Newgrounds.scoreboards)
+        scoreboardText += scoreboard.id + ': ' + scoreboard.name + '<br>';
+    div_scoreboards.innerHTML = scoreboardText;
+}
+
+setInterval(Update, 16);
+
+</script>
+</body>
