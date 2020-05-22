@@ -20,7 +20,6 @@ Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
 
 ```
-
 # Update/Render for Medal Popups
 
 ```
