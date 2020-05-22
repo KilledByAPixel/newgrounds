@@ -138,6 +138,7 @@ const Newgrounds =
         this.Call('ScoreBoard.getScores', 
             {id:board.id, user, social, skip, limit}, 0);
     },
+    
     Call(component, parameters=0, async=1)
     {
         // build the input object
@@ -146,7 +147,6 @@ const Newgrounds =
         {
             app_id: this.app_id,
             session_id: this.session_id,
-            debug: this.debug,
             call
         };
 
@@ -175,36 +175,14 @@ const Newgrounds =
         if (!this.cipher)
             return call;
         
-        // apply encryption
-        const secure = this.AES128(JSON.stringify(call), this.cipher);
-        return { secure };
-    },
-    
-    AES128(text, cipher)
-    {
-        // The initialization vector (must be 16 bytes)
-        // TODO: add randomization
-        const iv = [ 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 ];
-
-        // Convert text to bytes
-        const pad = 16;
-        text = text.padEnd( (1+(text.length-1)/pad|0)*pad );
-        const textBytes = aesjs.utils.utf8.toBytes(text);
-
-        const key = aesjs.utils.utf8.toBytes(atob(cipher));
-        const aesCbc = new aesjs.ModeOfOperation.cbc(key, iv);
-        const encryptedBytes = aesCbc.encrypt(textBytes);
-
-        if (this.debug)
-        {
-            // show decryped text
-            const aesCbc = new aesjs.ModeOfOperation.cbc(key, iv);
-            const decryptedBytes = aesCbc.decrypt(encryptedBytes);
-            const decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
-            console.log(decryptedText);
-        }
-    
-        const ivAndEncryptedBytes = [...iv, ...encryptedBytes];
-        return btoa(ivAndEncryptedBytes);
+        // encrypt using AES-128 Base64 with CryptoJS
+        const aesKey = CryptoJS.enc.Base64.parse(this.cipher);
+        const iv = CryptoJS.lib.WordArray.random(16);
+		const encrypted = CryptoJS.AES.encrypt(JSON.stringify(call), aesKey, {iv});
+		const output = CryptoJS.enc.Base64.stringify(iv.concat(encrypted.ciphertext));
+		
+		call.secure = output;
+		call.parameters = null;
+		return call;
     },
 };

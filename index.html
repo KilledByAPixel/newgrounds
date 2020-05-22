@@ -1,3 +1,10 @@
+<!--
+
+Newgrounds 3.0 JavaScript API
+MIT License - Copyright 2020 Frank Force
+See crytpo-js.js for CryptoJS MIT License
+
+-->
 <html>
 <head>
 <title>Newgrounds Test</title>
@@ -21,8 +28,6 @@ canvas
 <body bgcolor=#111>
 <b>Newgrounds API Test</b>
 <br>
-Note: Tests are run in debug mode and may not unlock on your account!
-<br>
 <a href=https://github.com/KilledByAPixel/newgrounds target=_blank>This project is OpenSource on GitHub.</a>
 <br><br>
 <b>Medals</b>
@@ -35,22 +40,24 @@ Note: Tests are run in debug mode and may not unlock on your account!
 <b>Scoreboards</b>
 <div id=div_scoreboards></div>
 <br>
-<input id=input_score value=0 type=number>
+<input id=input_score value=12345 type=number>
 <button onclick='PostScore(0, input_score.value)'>Post Score</button>
 <br><br>
-<b>Response Debug</b>
+<b>Response</b>
 <br>
 <textarea id=textarea_response readonly cols=60 rows=5></textarea>
 <br><br>
 <b>Canvas - Shows medal popups when unlocked</b>
 <br>
 <canvas id=c width=720></canvas>
-<script src=aes.js></script>
+<script src=crypto-js.js></script>
 <script src=newgrounds.js></script>
 <script>
 
+"use strict";
+
 const appID = '50367:TZmUUObe';
-const encryptionCipher = '';//'gSwuuUahe/VmTn0M/MzSeg=='; // encryption not working!
+const encryptionCipher = 'gSwuuUahe/VmTn0M/MzSeg=='; // AES-128 Base64
 const debug = 1;
 
 Newgrounds.Init(appID, encryptionCipher, debug);
