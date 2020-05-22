@@ -8,7 +8,7 @@
 - Functions provided for medals and soreboards
 - Medal popup display rendering with icons
 - Escaped emojis can be used in medal names and descriptions.
-- Enncryption is currently not working. Working on it...
+- Enncryption is currently not working. I could use some help with this.
 - [Uses AES-JS for encryption.](https://github.com/ricmoo/aes-js)
 
 # Example Usage
