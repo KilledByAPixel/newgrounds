@@ -1,5 +1,4 @@
-# newgrounds
-A JavaScript API for Newgrounds
+# A JavaScript API for Newgrounds
 
 # [LIVE DEMO](https://www.newgrounds.com/portal/view/755888?updated=1590185509)
 
