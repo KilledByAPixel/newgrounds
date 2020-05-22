@@ -6,6 +6,7 @@
 - Wrapper for Newgrounds API calls
 - Functions provided for medals and soreboards
 - Medal popup display rendering with icons
+- Escaped emojis can be used in medal names and descriptions.
 - Enncryption is currently not working. Working on it...
 
 # Example Usage
