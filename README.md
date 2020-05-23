@@ -13,7 +13,7 @@
 
 # Example Usage
 ```
-Newgrounds.Init(appID, encryptionCipher, debug);
+Newgrounds.Init(appID, encryptionCipher);
 Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
 ```
