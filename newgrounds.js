@@ -178,12 +178,12 @@ const Newgrounds =
         // encrypt using AES-128 Base64 with CryptoJS
         const aesKey = this.CryptoJS.enc.Base64.parse(this.cipher);
         const iv = this.CryptoJS.lib.WordArray.random(16);
-		const encrypted = this.CryptoJS.AES.encrypt(JSON.stringify(call), aesKey, {iv});
-		const output = this.CryptoJS.enc.Base64.stringify(iv.concat(encrypted.ciphertext));
-		
-		call.secure = output;
-		call.parameters = null;
-		return call;
+        const encrypted = this.CryptoJS.AES.encrypt(JSON.stringify(call), aesKey, {iv});
+        const secure = this.CryptoJS.enc.Base64.stringify(iv.concat(encrypted.ciphertext));
+
+        call.secure = secure;
+        call.parameters = null;
+        return call;
     },
 };
 
