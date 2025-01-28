@@ -18,6 +18,6 @@ Newgrounds.PostScore(0, 12345);
 ```
 # Optional Update/Render for Medal Popups
 ```
-Newgrouinds.Update(timeDelta);
+Newgrounds.Update(timeDelta);
 Newgrounds.Render(canvasContext, drawSize);
 ```
