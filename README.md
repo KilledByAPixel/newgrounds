@@ -1,6 +1,5 @@
 # A JavaScript Wrapper for Newgrounds API 3.0
 
-# [LIVE DEMO](https://www.newgrounds.com/portal/view/755888?updated=1590185509)
 # [EXAMPLE GAME - BOUNCE BACK](https://www.newgrounds.com/portal/view/755171)
 
 # Features
