@@ -3,21 +3,29 @@
 # [EXAMPLE GAME - BOUNCE BACK](https://www.newgrounds.com/portal/view/755171)
 
 # Features
-- Small self contained wrapper for Newgrounds API 3.0 calls
-- Functions provided for medals and soreboards
+- Small self contained wrapper for Newgrounds API 3.0 calls, no dependencies
+- Functions provided for medals and scoreboards
 - Medal popup display rendering with icons
 - Escaped emojis can be used in medal names and descriptions
-- Encryption is set up for AES-128 Base64 encryption
-- [Uses CryptoJS for encryption](https://github.com/brix/crypto-js)
+- Calls are encrypted with AES-128 Base64 using the browser's built in Web Crypto API
+- Logs views and keeps the session alive while the game is open
+- Every call is a fetch, so the functions return promises
 
 # Example Usage
-```
-Newgrounds.Init(appID, encryptionCipher);
+```js
+await Newgrounds.Init(appID, encryptionCipher);
 Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
 ```
+`Newgrounds.Init` returns a promise (also available as `Newgrounds.ready`) that resolves once the medals and scoreboards have been fetched. `UnlockMedal`, `PostScore`, and `GetScores` return the API response as a promise.
+
 # Optional Update/Render for Medal Popups
-```
+```js
 Newgrounds.Update(timeDelta);
 Newgrounds.Render(canvasContext, drawSize);
 ```
+
+# Notes
+- Encryption uses the Web Crypto API, which browsers only provide on a secure page: https, localhost, or a local file
+- Medals and scoreboards load without a login, but unlocking medals and posting scores need the player to be logged in on Newgrounds
+- Set `debug` to log every response and start with all medals locked
