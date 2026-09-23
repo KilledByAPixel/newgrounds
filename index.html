@@ -5,7 +5,7 @@ Newgrounds 3.0 JavaScript API
 MIT License - Copyright 2020 Frank Force
 
 -->
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Newgrounds Test</title>
@@ -66,29 +66,31 @@ const encryptionCipher = 'gSwuuUahe/VmTn0M/MzSeg=='; // AES-128 Base64
 const debug = 1;
 
 // every call is a fetch, so the results come back as promises
-Newgrounds.Init(appID, encryptionCipher, debug).then(ShowResponse);
+Newgrounds.Init(appID, encryptionCipher, debug).then(()=>
+    ShowResponse(Newgrounds.medals.length ? 'Ready' : 'Newgrounds unavailable'));
 
-function ShowResponse()
+function ShowResponse(response)
 {
-    textarea_response.value = Newgrounds.responseText;
+    textarea_response.value = typeof response == 'string' ?
+        response : JSON.stringify(response, null, 1);
 }
 
 async function UnlockMedal(index)
 {
-    await Newgrounds.UnlockMedal(index);
-    ShowResponse();
+    const response = await Newgrounds.UnlockMedal(index);
+    ShowResponse(response ?? 'Medal already unlocked or not available');
 }
 
 async function PostScore(index)
 {
-    await Newgrounds.PostScore(index, parseInt(input_score.value));
-    ShowResponse();
+    const response = await Newgrounds.PostScore(index, parseInt(input_score.value));
+    ShowResponse(response ?? 'Scoreboard not available');
 }
 
 async function GetScores(index)
 {
-    await Newgrounds.GetScores(index);
-    ShowResponse();
+    const response = await Newgrounds.GetScores(index);
+    ShowResponse(response ?? 'Scoreboard not available');
 }
 
 function Update()

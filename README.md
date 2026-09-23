@@ -13,11 +13,13 @@
 
 # Example Usage
 ```js
-await Newgrounds.Init(appID, encryptionCipher);
+Newgrounds.Init(appID, encryptionCipher);
+
+// later, once Newgrounds.ready has resolved
 Newgrounds.UnlockMedal(0);
 Newgrounds.PostScore(0, 12345);
 ```
-`Newgrounds.Init` returns a promise (also available as `Newgrounds.ready`) that resolves once the medals and scoreboards have been fetched. `UnlockMedal`, `PostScore`, and `GetScores` return the API response as a promise.
+`Newgrounds.Init` returns a promise (also available as `Newgrounds.ready`) that resolves once the medals and scoreboards have been fetched. Medals and scoreboards are referenced by their index in that fetched list. `UnlockMedal`, `PostScore`, and `GetScores` return the API response as a promise, or undefined when the call could not be made.
 
 # Optional Update/Render for Medal Popups
 ```js

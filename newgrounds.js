@@ -2,7 +2,7 @@
 // MIT License - Copyright 2020 Frank Force
 //
 // Small self contained wrapper for the Newgrounds API 3.0
-// - Encrypts calls with the browser's own WebCrypto, no library needed
+// - Encrypts calls with the browser's built in Web Crypto API, no library needed
 // - Every call is a fetch, so the functions return promises
 // - Await Newgrounds.ready (or Newgrounds.Init) for the medals and scoreboards
 
@@ -21,8 +21,10 @@ const Newgrounds =
     {
         this.app_id = app_id;
         this.cipher = cipher;
-        this.cryptoKey = undefined; // the cipher imported for WebCrypto, on the first encrypted call
+        this.cryptoKey = undefined; // the cipher imported for Web Crypto, on the first encrypted call
         this.debug = debug;
+        clearInterval(this.keepAliveInterval); // stop the previous ping if Init is called again
+        this.keepAliveInterval = undefined;
         this.medalDisplayTime = 5;
         this.showPopups = 1;
         this.showDescriptions = 1;
@@ -38,7 +40,7 @@ const Newgrounds =
         this.host = location.hostname;
 
         if (cipher && !(typeof crypto != 'undefined' && crypto.subtle))
-            console.warn('Newgrounds: a cipher needs WebCrypto, which the browser only has on a secure page (https, localhost, or file)');
+            console.warn('Newgrounds: a cipher needs Web Crypto, which the browser only has on a secure page (https, localhost, or file)');
 
         this.ready = enableNewgrounds ? this.InitAsync() : Promise.resolve(this);
         return this.ready;
@@ -51,14 +53,14 @@ const Newgrounds =
 
         // get list of medals
         const medalsResult = await this.Call('Medal.getList');
-        if (!medalsResult?.result || medalsResult.result.error)
+        if (!medalsResult?.result?.data?.success)
         {
-            // bail early if the first call failed (offline / bad session / server error)
+            // bail early if the first call failed (offline / bad app id / server error)
             this.debug && console.log('Newgrounds unavailable; skipping init');
             return this;
         }
 
-        this.medals = medalsResult.result.data?.medals ?? [];
+        this.medals = medalsResult.result.data.medals ?? [];
         for (const medal of this.medals)
         {
             medal.image = new Image;
@@ -75,7 +77,7 @@ const Newgrounds =
         if (this.session_id)
         {
             const keepAliveMS = 60 * 1e3;
-            setInterval(()=> this.Call('Gateway.ping'), keepAliveMS);
+            this.keepAliveInterval = setInterval(()=> this.Call('Gateway.ping'), keepAliveMS);
         }
         return this;
     },
@@ -225,6 +227,8 @@ const Newgrounds =
         if (!this.cryptoKey)
         {
             const keyBytes = Uint8Array.from(atob(this.cipher), c=> c.charCodeAt(0));
+            if (keyBytes.length != 16)
+                throw new Error('Newgrounds: cipher must be an AES-128 key encoded as Base64');
             this.cryptoKey = await crypto.subtle.importKey('raw', keyBytes, 'AES-CBC', false, ['encrypt']);
         }
         const iv = crypto.getRandomValues(new Uint8Array(16));
@@ -244,25 +248,25 @@ const Newgrounds =
      *  @return {Promise<Object>}    - The response JSON object, undefined when the call failed */
     async Call(component, parameters)
     {
-        const call = {component, parameters};
-        if (this.cipher)
-        {
-            // the whole call goes encrypted in its place
-            call.secure = await this.Encrypt(JSON.stringify(call));
-            call.parameters = null;
-        }
-
-        // build the input object
-        const input = {app_id:this.app_id, session_id:this.session_id, call};
-
-        // build post data
-        const formData = new FormData();
-        formData.append('input', JSON.stringify(input));
-
-        // send post data
         const url = 'https://newgrounds.io/gateway_v3.php';
         try
         {
+            const call = {component, parameters};
+            if (this.cipher)
+            {
+                // the whole call goes encrypted in its place
+                call.secure = await this.Encrypt(JSON.stringify(call));
+                call.parameters = null;
+            }
+
+            // build the input object
+            const input = {app_id:this.app_id, session_id:this.session_id, call};
+
+            // build post data
+            const formData = new FormData();
+            formData.append('input', JSON.stringify(input));
+
+            // send post data
             const response = await fetch(url, {method:'POST', body:formData});
             const text = await response.text();
             this.debug && console.log(text);
