@@ -78,19 +78,19 @@ function ShowResponse(response)
 async function UnlockMedal(index)
 {
     const response = await Newgrounds.UnlockMedal(index);
-    ShowResponse(response ?? 'Medal already unlocked or not available');
+    ShowResponse(response ?? 'No call made or call failed, medal may already be unlocked');
 }
 
 async function PostScore(index)
 {
     const response = await Newgrounds.PostScore(index, parseInt(input_score.value));
-    ShowResponse(response ?? 'Scoreboard not available');
+    ShowResponse(response ?? 'No call made or call failed');
 }
 
 async function GetScores(index)
 {
     const response = await Newgrounds.GetScores(index);
-    ShowResponse(response ?? 'Scoreboard not available');
+    ShowResponse(response ?? 'No call made or call failed');
 }
 
 function Update()
