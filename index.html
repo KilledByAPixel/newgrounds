@@ -69,12 +69,23 @@ const encryptionCipher = 'gSwuuUahe/VmTn0M/MzSeg=='; // AES-128 Base64
 const debug = 1;
 
 // every call is a fetch, so the results come back as promises
+let loaded = false;
 Newgrounds.Init(appID, encryptionCipher, debug).then(()=>
 {
-    div_user.textContent = Newgrounds.user ? 'Logged in as ' + Newgrounds.user.name :
-        'Guest, medals unlock for this page only and scores need a login';
+    loaded = true;
     ShowResponse(Newgrounds.medals.length ? 'Ready' : 'Newgrounds unavailable');
 });
+
+// who the player is, and if a guest, why
+function GetPlayerText()
+{
+    if (Newgrounds.user)
+        return 'Logged in as ' + Newgrounds.user.name;
+    const urlSession = new URL(location.href).searchParams.get('ngio_session_id');
+    const why = !urlSession ? 'no ngio_session_id in the page URL' :
+        'the session in the URL was refused or lost, see the console';
+    return 'Guest, ' + why + '. Medals unlock for this page only and scores need a login.';
+}
 
 function ShowResponse(response)
 {
@@ -113,6 +124,8 @@ async function GetScores(index)
 function Update()
 {
     c.width|=0;
+    if (loaded)
+        div_user.textContent = GetPlayerText();
     Newgrounds.Update(1/60);
     Newgrounds.Render(c.getContext('2d'));
 
