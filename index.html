@@ -86,7 +86,7 @@ async function UnlockMedal(index)
 {
     ShowResponse('Unlocking...');
     const unlocked = await Newgrounds.UnlockMedal(index);
-    ShowResponse(unlocked ? 'Medal unlocked' : 'Medal not unlocked yet, it is resent every minute when logged in');
+    ShowResponse(unlocked ? 'Medal unlocked' : 'Medal not unlocked, see the console with debug on');
 }
 
 async function PostScore(index)
