@@ -35,6 +35,9 @@ canvas
 <br>
 <a href=https://github.com/KilledByAPixel/newgrounds target=_blank>This project is OpenSource on GitHub.</a>
 <br><br>
+<b>Player</b>
+<div id=div_user>Loading...</div>
+<br>
 <b>Medals</b>
 <div id=div_medals></div>
 <br>
@@ -47,7 +50,7 @@ canvas
 <br>
 <input id=input_score value=12345 type=number>
 <button onclick=PostScore(0)>Post Score</button>
-<button onclick=GetScores(0)>Get Scores</button>
+<button onclick=GetScores(0)>Get All Time Scores</button>
 <br><br>
 <b>Response</b>
 <br>
@@ -67,7 +70,11 @@ const debug = 1;
 
 // every call is a fetch, so the results come back as promises
 Newgrounds.Init(appID, encryptionCipher, debug).then(()=>
-    ShowResponse(Newgrounds.medals.length ? 'Ready' : 'Newgrounds unavailable'));
+{
+    div_user.textContent = Newgrounds.user ? 'Logged in as ' + Newgrounds.user.name :
+        'Guest, medals unlock for this page only and scores need a login';
+    ShowResponse(Newgrounds.medals.length ? 'Ready' : 'Newgrounds unavailable');
+});
 
 function ShowResponse(response)
 {
@@ -77,8 +84,9 @@ function ShowResponse(response)
 
 async function UnlockMedal(index)
 {
-    const response = await Newgrounds.UnlockMedal(index);
-    ShowResponse(response ?? 'No call made or call failed, medal may already be unlocked');
+    ShowResponse('Unlocking...');
+    const unlocked = await Newgrounds.UnlockMedal(index);
+    ShowResponse(unlocked ? 'Medal unlocked' : 'Medal not unlocked yet, it is resent every minute when logged in');
 }
 
 async function PostScore(index)
@@ -89,8 +97,17 @@ async function PostScore(index)
 
 async function GetScores(index)
 {
-    const response = await Newgrounds.GetScores(index);
-    ShowResponse(response ?? 'No call made or call failed');
+    const response = await Newgrounds.GetScores(index, undefined, false, 0, 10, 'A');
+    const scores = response?.result?.data?.scores;
+    if (!response)
+        ShowResponse('No call made or call failed');
+    else if (!scores)
+        ShowResponse(response);
+    else
+    {
+        const lines = scores.map(score=> score.user.name + ': ' + score.formatted_value);
+        ShowResponse(lines.join('\n') || 'No scores yet');
+    }
 }
 
 function Update()
@@ -101,7 +118,7 @@ function Update()
 
     let medalText = '';
     for (const medal of Newgrounds.medals)
-        medalText += medal.id + ': ' + Newgrounds.GetMedalDisplayText(medal) + '<br>';
+        medalText += (medal.unlocked ? '&#10004; ' : '') + medal.id + ': ' + Newgrounds.GetMedalDisplayText(medal) + '<br>';
     div_medals.innerHTML = medalText;
 
     let scoreboardText = '';
