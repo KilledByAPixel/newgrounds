@@ -82,7 +82,7 @@ Newgrounds.Render(canvasContext, drawSize);
 
 ## Notes
 - Encryption uses the Web Crypto API, which browsers only provide on a secure page: https, localhost, or a local file.
-- A wrong encryption key only affects medal unlocks and posted scores. The session check, lists, and leaderboards still work.
+- A wrong encryption key only affects medal unlocks and posted scores. The session check, lists, and leaderboards still work. Those calls are refused with error 201 and not retried. `Init` warns in the console if the key is not a 24 character Base64 key.
 - Pass `true` as the third argument to `Init` to log every response to the console.
 - Set `enableNewgrounds` to 0 at the top of the file to turn off all calls, for example on other hosting sites.
 

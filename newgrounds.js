@@ -54,6 +54,8 @@ const Newgrounds =
 
         if (cipher && !(typeof crypto != 'undefined' && crypto.subtle))
             console.warn('Newgrounds: a cipher needs Web Crypto, which the browser only has on a secure page (https, localhost, or file)');
+        if (cipher && !/^[A-Za-z0-9+/]{22}==$/.test(cipher))
+            console.warn('Newgrounds: the cipher must be the 24 character Base64 AES-128 key from the app settings');
 
         this.ready = enableNewgrounds ? this.InitAsync() : Promise.resolve(this);
         return this.ready;
@@ -371,7 +373,7 @@ const Newgrounds =
      *  @param {Object} [parameters]      - Parameters to use for call
      *  @param {string|null} [session_id] - The session to send, the player's by default
      *  @return {Promise<Object>} - The response JSON object, undefined when the call failed or took over 15 seconds;
-     *    a component's own success and error are in result.data */
+     *    a component's own success and error are in result.data, and a cipher that cannot be used gives error 201 */
     async Call(component, parameters, session_id = this.session_id)
     {
         const url = 'https://www.newgrounds.io/gateway_v3.php';
@@ -379,7 +381,14 @@ const Newgrounds =
         {
             let execute = {component, parameters};
             if (this.cipher && this.secureComponents.includes(component))
-                execute = {secure: await this.Encrypt(JSON.stringify(execute))}; // only the encrypted call goes
+            {
+                // only the encrypted call goes; a key that will not even import is refused here the way the server
+                // refuses a wrong one, since sending again cannot fix it
+                const secure = await this.Encrypt(JSON.stringify(execute)).catch(e=> this.debug && console.log('Newgrounds cipher failed', e));
+                if (!secure)
+                    return {success:false, error:{code:201, message:'Invalid Encryption: the cipher could not be used, it must be a Base64 AES-128 key on a secure page'}};
+                execute = {secure};
+            }
 
             // build the request object, in the form the Newgrounds.io docs give
             const request = {app_id:this.app_id, session_id, execute};
