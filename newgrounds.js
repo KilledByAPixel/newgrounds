@@ -42,8 +42,9 @@ const Newgrounds =
         this.medals = [];
         this.scoreboards = [];
         this.user = null;                 // the logged in player once ready, with id, name, url and supporter
-        this.pendingUnlocks = new Map;    // medal index to the promise of its unlock request, until the server confirms
+        this.pendingUnlocks = new Map;    // medal index to the promise of its unlock, while in flight or waiting to be resent
         this.unlocksToResend = new Set;   // medal indexes whose unlock request did not reach the server
+        this.unlocksRefused = new Set;    // medal indexes the server refused this visit, asked again they answer no unsent
         this.responseText = '';
         this.points = [5, 10, 25, 50, 100]; // fallback medal points by difficulty
 
@@ -199,9 +200,10 @@ const Newgrounds =
     /** Unlock a medal and show its popup
      *  - As a guest the medal unlocks right away, for this page only
      *  - When logged in the medal unlocks once the server confirms; a request that did not reach the server is sent again
-     *    after the session check every minute, one the server refused is not
-     *  - Calling it again while the medal is pending returns the same promise
-     *  - An answer that the session is gone makes the game play as a guest, and the medal unlocks right away
+     *    after the session check every minute, and calling it again while the medal is pending returns the same promise
+     *  - One the server refused is not sent again this visit, calling it again resolves false without a request
+     *  - An answer that the session is gone makes the game play as a guest, and the pending medals, this one too, unlock
+     *    right away; a refused one only unlocks if it is earned again
      *  @param {number} index - Index into the medals list
      *  @return {Promise<boolean>} - Whether the medal is unlocked, once the server has answered when logged in */
     UnlockMedal(index)
@@ -219,6 +221,8 @@ const Newgrounds =
         }
 
         // logged in: the medal unlocks once the server confirms, one request at a time
+        if (this.unlocksRefused.has(index))
+            return Promise.resolve(false); // refused this visit, asking again will not change that
         if (this.pendingUnlocks.has(index))
             return this.pendingUnlocks.get(index);
         const request = this.Call('Medal.unlock', {id:medal.id}).then(response=>
@@ -228,11 +232,18 @@ const Newgrounds =
             const serverMedal = response?.result?.data?.medal;
             if (!serverMedal?.unlocked)
             {
-                // still pending, a request that did not reach the server waits for the session check every minute
                 this.debug && console.log('Newgrounds did not unlock medal', medal.id, response?.result?.data?.error || response?.error);
-                if (this.session_id && !response)
-                    this.unlocksToResend.add(index);
-                return !!medal.unlocked;
+                if (!this.session_id)
+                    return !!medal.unlocked; // the session dropped, the medal unlocked as a guest
+                if (!response)
+                    this.unlocksToResend.add(index); // did not reach the server: still pending, resent after the session check
+                else
+                {
+                    // refused, which will not change: no longer pending, so a session drop does not unlock it
+                    this.pendingUnlocks.delete(index);
+                    this.unlocksRefused.add(index);
+                }
+                return false;
             }
 
             // take the server's medal data, so a secret medal shows its real icon once unlocked
@@ -270,7 +281,7 @@ const Newgrounds =
     },
 
     /** Play as a guest from now on: stop the session check, keep the unlocks the server confirmed, and unlock the ones
-     *  still out right away */
+     *  still pending right away; a refused one only unlocks if it is earned again */
     DropSession()
     {
         if (!this.session_id)
@@ -285,6 +296,7 @@ const Newgrounds =
         const pending = [...this.pendingUnlocks.keys()];
         this.pendingUnlocks.clear();
         this.unlocksToResend.clear();
+        this.unlocksRefused.clear();
         for (const index of pending)
             this.UnlockMedal(index);
     },

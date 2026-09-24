@@ -57,8 +57,8 @@ Newgrounds passes a session to the game through the `ngio_session_id` URL parame
 While logged in, the session is checked every minute, which also keeps it alive.
 
 - **Unlock could not reach the server.** It is resent after the next session check, until the server answers.
-- **Server refused the unlock.** It is not sent again. The medal stays locked for this visit.
-- **Session lost.** This covers an expired session, or a server answer to an unlock or score saying the session is gone. The game switches to guest play. Medals the server already confirmed stay unlocked. Unlocks still waiting on the server unlock right away as guest unlocks.
+- **Server refused the unlock.** It is not sent again, and asking again resolves false without a request. The medal stays locked while logged in. If the session is lost later, it does not pop up then. It unlocks as a guest unlock only if the player earns it again.
+- **Session lost.** This covers an expired session, or a server answer to an unlock or score saying the session is gone. The game switches to guest play. Medals the server already confirmed stay unlocked. Unlocks still in flight or waiting to be resent unlock right away as guest unlocks.
 
 ## API
 | Function | Description |
